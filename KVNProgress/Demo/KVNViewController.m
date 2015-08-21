@@ -91,7 +91,7 @@
 {
 	self.basicConfiguration.backgroundType = KVNProgressBackgroundTypeSolid;
 	
-	[KVNProgress showWithStatus:@"Loading..."];
+	[KVNProgress showOnlyStatus:@"Loading..."];
 	
 	dispatch_main_after(3.0f, ^{
 		[KVNProgress dismiss];

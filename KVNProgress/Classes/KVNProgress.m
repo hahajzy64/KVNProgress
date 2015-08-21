@@ -42,14 +42,14 @@ static CGFloat const KVNCheckmarkAnimationDuration = 0.5f;
 static CGFloat const KVNInfiniteLoopAnimationDuration = 1.0f;
 static CGFloat const KVNProgressAnimationDuration = 0.25f;
 static CGFloat const KVNProgressIndeterminate = CGFLOAT_MAX;
-static CGFloat const KVNCircleProgressViewToStatusLabelVerticalSpaceConstraintConstant = 20.0f;
+static CGFloat const KVNCircleProgressViewToStatusLabelVerticalSpaceConstraintConstant = 10.0f; //圈，文字间距
 static CGFloat const KVNContentViewFullScreenModeLeadingAndTrailingSpaceConstraintConstant = 0.0f;
 static CGFloat const KVNContentViewNotFullScreenModeLeadingAndTrailingSpaceConstraintConstant = 25.0f;
-static CGFloat const KVNContentViewWithStatusInset = 10.0f;
+static CGFloat const KVNContentViewWithStatusInset = 20.0f;     //圈、文字与框的内边距
 static CGFloat const KVNContentViewWithoutStatusInset = 20.0f;
 static CGFloat const KVNContentViewCornerRadius = 8.0f;
 static CGFloat const KVNContentViewWithoutStatusCornerRadius = 15.0f;
-static CGFloat const KVNAlertViewWidth = 270.0f;
+static CGFloat const KVNAlertViewWidth = 240.0f;
 static CGFloat const KVNMotionEffectRelativeValue = 10.0f;
 
 static KVNProgressConfiguration *configuration;
@@ -335,6 +335,19 @@ static KVNProgressConfiguration *configuration;
 						 completion:completion];
 }
 
+#pragma mark onlyTitle
++ (void)showOnlyStatus:(NSString *)status
+{
+    [[self sharedView] showProgress:0
+                             status:status
+                              style:KVNProgressStyleHidden
+                     backgroundType:configuration.backgroundType
+                         fullScreen:configuration.fullScreen
+                               view:nil
+                         completion:nil];
+    
+}
+
 - (void)showProgress:(CGFloat)progress
 			  status:(NSString *)status
 			   style:(KVNProgressStyle)style
@@ -535,12 +548,14 @@ static KVNProgressConfiguration *configuration;
 
 - (void)setupUI
 {
-	[self setupStatusBar];
-	[self setupGestures];
-	[self setupConstraints];
-	[self setupCircleProgressView];
+//    if (self.style != KVNProgressStateHidden) {     //test
+        [self setupStatusBar];
+        [self setupGestures];
+        [self setupConstraints];
+//    }
+    [self setupCircleProgressView];
 	[self setupStatus:self.status];
-	[self setupBackground];
+    [self setupBackground];
 }
 
 - (void)setupStatusBar
@@ -603,29 +618,35 @@ static KVNProgressConfiguration *configuration;
 			}
 		}
 	}
-	
-	self.circleProgressViewTopToSuperViewConstraint.constant = statusInset;
-	self.statusLabelBottomToSuperViewConstraint.constant = statusInset;
-	self.contentViewWidthConstraint.constant = contentWidth;
+    
+    self.circleProgressViewTopToSuperViewConstraint.constant = statusInset;
+    self.statusLabelBottomToSuperViewConstraint.constant = statusInset;
+    self.contentViewWidthConstraint.constant = contentWidth;
 	
 	[self layoutIfNeeded];
 }
 
 - (void)setupCircleProgressView
 {
-	// Constraints
-	self.circleProgressViewWidthConstraint.constant = self.configuration.circleSize;
-	self.circleProgressViewHeightConstraint.constant = self.configuration.circleSize;
-	
-	[self layoutIfNeeded];
-	
-	// Circle shape
-	self.circleProgressView.layer.cornerRadius = (self.configuration.circleSize / 2.0f);
-	self.circleProgressView.layer.masksToBounds = YES;
-	self.circleProgressView.backgroundColor = [UIColor clearColor];
-	
-	// Remove all previous added layers
-	[self removeAllSubLayersOfLayer:self.circleProgressView.layer];
+    if (self.style != KVNProgressStateHidden) {     //取消掉转圈
+        // Constraints
+        self.circleProgressViewWidthConstraint.constant = self.configuration.circleSize;
+        self.circleProgressViewHeightConstraint.constant = self.configuration.circleSize;
+    }else{
+        // Constraints
+        self.circleProgressViewWidthConstraint.constant = 0;
+        self.circleProgressViewHeightConstraint.constant = 0;
+    }
+    
+    [self layoutIfNeeded];
+        
+    // Circle shape
+    self.circleProgressView.layer.cornerRadius = (self.configuration.circleSize / 2.0f);
+    self.circleProgressView.layer.masksToBounds = YES;
+    self.circleProgressView.backgroundColor = [UIColor clearColor];
+    
+    // Remove all previous added layers
+    [self removeAllSubLayersOfLayer:self.circleProgressView.layer];
 }
 
 - (void)setupInfiniteCircle
@@ -967,13 +988,17 @@ static KVNProgressConfiguration *configuration;
 - (void)updateBackgroundConstraints
 {
 	if (![self isFullScreen] && self.status.length == 0) {
-		self.circleProgressViewTopToSuperViewConstraint.constant = KVNContentViewWithoutStatusInset;
+        self.circleProgressViewTopToSuperViewConstraint.constant = KVNContentViewWithoutStatusInset;
 		self.statusLabelBottomToSuperViewConstraint.constant = KVNContentViewWithoutStatusInset;
 		
 		// We sets the width as the height to have a square
 		CGSize fittingSize = [self.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
 		self.contentViewWidthConstraint.constant = fittingSize.height;
 	}
+    if (self.style == KVNProgressStateHidden) {     //文字下边距
+        self.statusLabelBottomToSuperViewConstraint.constant = 30 ;
+        self.contentViewWidthConstraint.constant = KVNAlertViewWidth;
+    }
 }
 
 + (void)updateStatus:(NSString*)status
@@ -998,6 +1023,9 @@ static KVNProgressConfiguration *configuration;
 	BOOL showStatus = (self.status.length > 0);
 	
 	self.circleProgressViewToStatusLabelVerticalSpaceConstraint.constant = (showStatus) ? KVNCircleProgressViewToStatusLabelVerticalSpaceConstraintConstant : 0.0f;
+    if (self.style == KVNProgressStateHidden) {     //取消掉图片到上边的边距
+        self.circleProgressViewToStatusLabelVerticalSpaceConstraint.constant = 10;
+    }
 	
 	CGSize maximumLabelSize = CGSizeMake(CGRectGetWidth(self.statusLabel.bounds), CGFLOAT_MAX);
 	CGSize statusLabelSize = [self.statusLabel sizeThatFits:maximumLabelSize];

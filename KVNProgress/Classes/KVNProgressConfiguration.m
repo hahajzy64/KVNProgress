@@ -15,20 +15,20 @@
 - (id)init
 {
 	if (self = [super init]) {
-		_backgroundFillColor = [UIColor colorWithWhite:1.0f alpha:0.85f];
-		_backgroundTintColor = [[UIColor whiteColor] colorWithAlphaComponent:0.6f];
+		_backgroundFillColor = [[UIColor blackColor] colorWithAlphaComponent:0.8f]; //这个是纯色背景时颜色
+		_backgroundTintColor = [[UIColor blackColor] colorWithAlphaComponent:0.8f]; //这个是有浮层的浮层颜色
 		_backgroundType = KVNProgressBackgroundTypeBlurred;
 		_fullScreen = NO;
 		_showStop = NO;
 		
-		_circleStrokeForegroundColor = [UIColor darkGrayColor];
+		_circleStrokeForegroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.75f];         //圈的颜色
 		_circleStrokeBackgroundColor = [_circleStrokeForegroundColor colorWithAlphaComponent:0.3f];
 		_circleFillBackgroundColor = [UIColor clearColor];
 		_circleSize = (_fullScreen) ? 90.0f : 75.0f;
 		_stopRelativeHeight = 0.3;
 		_lineWidth = 2.0f;
 		
-		_statusColor = [UIColor darkGrayColor];
+		_statusColor = [[UIColor whiteColor] colorWithAlphaComponent:0.75f];    //文字颜色
 		_statusFont = [UIFont systemFontOfSize:17.0f];
 		
 		_successColor = [_statusColor copy];

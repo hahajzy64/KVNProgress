@@ -157,6 +157,9 @@ typedef void (^KVNCompletionBlock)(void);
 					 onView:(UIView *)superview
 				 completion:(KVNCompletionBlock)completion;
 
+#pragma mark - title
++ (void)showOnlyStatus:(NSString *)status;
+
 #pragma mark - Dimiss
 
 /**
